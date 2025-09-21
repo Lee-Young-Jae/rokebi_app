@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'app_routes.dart';
+import 'chatbot_page_route.dart';
 import '../../features/products/pages/product_detail_page.dart';
 import '../../features/design_system/pages/design_system_showcase.dart';
 import '../../features/navigation/pages/main_shell_page.dart';
@@ -14,10 +15,11 @@ class RouteGenerator {
       case AppRoutes.esim:
       case AppRoutes.call:
       case AppRoutes.account:
-        return MaterialPageRoute(
+        return ChatbotPageRoute(
           builder: (_) =>
               MainShellPage(initialRoute: settings.name ?? AppRoutes.home),
           settings: settings,
+          showChatbot: AppRoutes.shouldShowChatbot(settings.name),
         );
 
       // Auth routes
@@ -54,9 +56,10 @@ class RouteGenerator {
 
       case AppRoutes.productDetail:
         final productId = settings.arguments as String?;
-        return MaterialPageRoute(
+        return ChatbotPageRoute(
           builder: (_) => ProductDetailPage(productId: productId ?? '1'),
           settings: settings,
+          showChatbot: AppRoutes.shouldShowChatbot(settings.name),
         );
 
       case AppRoutes.checkout:

@@ -54,6 +54,23 @@ class AppRoutes {
     designSystem,
   ];
 
+  // 챗봇 X 페이지
+  static Set<String> get chatbotDisabledRoutes => {
+    login,
+    register,
+    forgotPassword,
+    checkout,
+    designSystem,
+  };
+
+  // chatbot floating 표시 여부
+  static bool shouldShowChatbot(String? routeName) {
+    if (routeName == null) return false;
+
+    // 비활성화 목록에 있으면 false, 없으면 true
+    return !chatbotDisabledRoutes.contains(routeName);
+  }
+
   // Get all routes as a list
   static List<String> get allRoutes => [
     shell,

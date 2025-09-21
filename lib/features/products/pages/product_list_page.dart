@@ -73,75 +73,75 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
         ],
       ),
       body: Container(
-        color: AppColors.surface,
-        child: Stack(
-          clipBehavior: Clip.hardEdge,
-          children: [
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ClipRect(
-                child: BannerCarousel(
-                  isVisible: _isBannerVisible,
-                  onClose: () {
-                    setState(() {
-                      _isBannerVisible = false;
-                    });
-                  },
+            color: AppColors.surface,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ClipRect(
+                    child: BannerCarousel(
+                      isVisible: _isBannerVisible,
+                      onClose: () {
+                        setState(() {
+                          _isBannerVisible = false;
+                        });
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              top: _isBannerVisible ? 144 : 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Column(
-                children: [
-                  const SearchButton(),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    color: AppColors.surface,
-                    child: TabBar(
-                      controller: _tabController,
-                      labelColor: AppColors.textPrimary,
-                      unselectedLabelColor: AppColors.textSecondary,
-                      dividerColor: AppColors.divider,
-                      dividerHeight: 1,
-                      indicatorColor: AppColors.tabBarIndicator,
-                      indicatorWeight: 1,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      labelStyle: AppTypography.labelLarge,
-                      unselectedLabelStyle: AppTypography.labelLarge,
-                      tabs: const [
-                        Tab(text: '아시아'),
-                        Tab(text: '유럽'),
-                        Tab(text: '미주/호주'),
-                        Tab(text: '복수국가'),
-                      ],
-                    ),
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  top: _isBannerVisible ? 144 : 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Column(
+                    children: [
+                      const SearchButton(),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        color: AppColors.surface,
+                        child: TabBar(
+                          controller: _tabController,
+                          labelColor: AppColors.textPrimary,
+                          unselectedLabelColor: AppColors.textSecondary,
+                          dividerColor: AppColors.divider,
+                          dividerHeight: 1,
+                          indicatorColor: AppColors.tabBarIndicator,
+                          indicatorWeight: 1,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          labelStyle: AppTypography.labelLarge,
+                          unselectedLabelStyle: AppTypography.labelLarge,
+                          tabs: const [
+                            Tab(text: '아시아'),
+                            Tab(text: '유럽'),
+                            Tab(text: '미주/호주'),
+                            Tab(text: '복수국가'),
+                          ],
+                        ),
+                      ),
+                      // TabBarView 영역
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildProductGrid(ProductRegion.asia),
+                            _buildProductGrid(ProductRegion.europe),
+                            _buildProductGrid(ProductRegion.americasOceania),
+                            _buildProductGrid(ProductRegion.multiple),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  // TabBarView 영역
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [
-                        _buildProductGrid(ProductRegion.asia),
-                        _buildProductGrid(ProductRegion.europe),
-                        _buildProductGrid(ProductRegion.americasOceania),
-                        _buildProductGrid(ProductRegion.multiple),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -160,7 +160,9 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
             Text('오류: ${state.error}'),
             ElevatedButton(
               onPressed: () {
-                ref.read(productListViewModelProvider.notifier).loadAllProducts();
+                ref
+                    .read(productListViewModelProvider.notifier)
+                    .loadAllProducts();
               },
               child: const Text('다시 시도'),
             ),
@@ -210,5 +212,4 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
       ),
     );
   }
-
 }
