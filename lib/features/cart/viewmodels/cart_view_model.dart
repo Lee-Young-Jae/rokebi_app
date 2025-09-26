@@ -69,6 +69,36 @@ class CartViewModel extends StateNotifier<Cart> {
     state = const Cart();
   }
 
+  // 특정 아이템의 선택 상태 토글
+  void toggleItemSelection(String itemId) {
+    final updatedItems = state.items.map((item) {
+      if (item.id == itemId) {
+        return item.copyWith(isSelected: !item.isSelected);
+      }
+      return item;
+    }).toList();
+
+    final totalAmount = updatedItems
+        .where((item) => item.isSelected)
+        .fold(0.0, (sum, item) => sum + item.totalPrice);
+
+    state = state.copyWith(items: updatedItems, totalAmount: totalAmount);
+  }
+
+  // 모든 아이템 선택/해제
+  void toggleAllSelection() {
+    final shouldSelectAll = !isAllSelected;
+    final updatedItems = state.items.map((item) {
+      return item.copyWith(isSelected: shouldSelectAll);
+    }).toList();
+
+    final totalAmount = shouldSelectAll
+        ? updatedItems.fold(0.0, (sum, item) => sum + item.totalPrice)
+        : 0.0;
+
+    state = state.copyWith(items: updatedItems, totalAmount: totalAmount);
+  }
+
   // 카트 아이템 개수
   int get itemCount => state.items.length;
 
@@ -78,6 +108,24 @@ class CartViewModel extends StateNotifier<Cart> {
 
   // 카트가 비어있는지 확인
   bool get isEmpty => state.items.isEmpty;
+
+  // 선택된 아이템들의 총 금액 계산
+  double get selectedTotalPrice {
+    return state.items
+        .where((item) => item.isSelected)
+        .fold(0, (sum, item) => sum + item.totalPrice);
+  }
+
+  // 선택된 아이템 개수
+  int get selectedItemCount {
+    return state.items.where((item) => item.isSelected).length;
+  }
+
+  // 모든 아이템이 선택되었는지 확인
+  bool get isAllSelected {
+    if (state.items.isEmpty) return false;
+    return state.items.every((item) => item.isSelected);
+  }
 
   // 특정 플랜이 카트에 있는지 확인
   bool isInCart(String planId) {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../core/widgets/quantity_selector.dart';
 import '../../products/models/product_model.dart';
 import '../../products/models/plan_model.dart';
 import '../viewmodels/cart_view_model.dart';
@@ -35,15 +36,9 @@ class PurchaseBottomSheet extends ConsumerStatefulWidget {
 class _PurchaseBottomSheetState extends ConsumerState<PurchaseBottomSheet> {
   int quantity = 1;
 
-  void _incrementQuantity() {
+  void _updateQuantity(int newQuantity) {
     setState(() {
-      if (quantity < 99) quantity++;
-    });
-  }
-
-  void _decrementQuantity() {
-    setState(() {
-      if (quantity > 1) quantity--;
+      quantity = newQuantity;
     });
   }
 
@@ -76,61 +71,13 @@ class _PurchaseBottomSheetState extends ConsumerState<PurchaseBottomSheet> {
                     ),
                   ),
 
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.divider),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // 감소
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: IconButton(
-                            icon: const Icon(Icons.remove, size: 18),
-                            onPressed: quantity > 1 ? _decrementQuantity : null,
-                            color: quantity > 1
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
-                            padding: EdgeInsets.zero,
-                          ),
-                        ),
-                        // 수량
-                        Container(
-                          width: 80,
-                          height: 30,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              left: BorderSide(color: AppColors.divider),
-                              right: BorderSide(color: AppColors.divider),
-                            ),
-                          ),
-                          child: Text(
-                            quantity.toString(),
-                            style: AppTypography.bodyLarge.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        // 증가 버튼
-                        SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: IconButton(
-                            icon: const Icon(Icons.add, size: 18),
-                            onPressed: quantity < 99
-                                ? _incrementQuantity
-                                : null,
-                            color: quantity < 99
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
-                            padding: EdgeInsets.zero,
-                          ),
-                        ),
-                      ],
-                    ),
+                  QuantitySelector(
+                    value: quantity,
+                    onChanged: _updateQuantity,
+                    width: 80,
+                    height: 30,
+                    minValue: 1,
+                    maxValue: 10,
                   ),
                 ],
               ),
@@ -208,6 +155,11 @@ class _PurchaseBottomSheetState extends ConsumerState<PurchaseBottomSheet> {
                   child: ElevatedButton(
                     onPressed: () async {
                       // 장바구니에 추가 후 장바구니 페이지로 이동
+
+                      print("widget.product: ${widget.product}");
+                      print("widget.plan: ${widget.plan}");
+                      print("quantity: ${quantity}");
+
                       await ref
                           .read(cartViewModelProvider.notifier)
                           .addToCart(

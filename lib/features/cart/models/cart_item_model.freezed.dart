@@ -27,12 +27,13 @@ mixin _$CartItem {
   String get planId => throw _privateConstructorUsedError;
   String get planName => throw _privateConstructorUsedError;
   String get planType =>
-      throw _privateConstructorUsedError; // 예: 'data', 'call', 'sms'
+      throw _privateConstructorUsedError; // 'data', 'call', 'sms'
   int get quantity => throw _privateConstructorUsedError;
   double get unitPrice => throw _privateConstructorUsedError;
   double get totalPrice => throw _privateConstructorUsedError;
   String? get productImageUrl => throw _privateConstructorUsedError;
   DateTime? get addedAt => throw _privateConstructorUsedError;
+  bool get isSelected => throw _privateConstructorUsedError;
 
   /// Serializes this CartItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -61,6 +62,7 @@ abstract class $CartItemCopyWith<$Res> {
     double totalPrice,
     String? productImageUrl,
     DateTime? addedAt,
+    bool isSelected,
   });
 }
 
@@ -90,6 +92,7 @@ class _$CartItemCopyWithImpl<$Res, $Val extends CartItem>
     Object? totalPrice = null,
     Object? productImageUrl = freezed,
     Object? addedAt = freezed,
+    Object? isSelected = null,
   }) {
     return _then(
       _value.copyWith(
@@ -137,6 +140,10 @@ class _$CartItemCopyWithImpl<$Res, $Val extends CartItem>
                 ? _value.addedAt
                 : addedAt // ignore: cast_nullable_to_non_nullable
                       as DateTime?,
+            isSelected: null == isSelected
+                ? _value.isSelected
+                : isSelected // ignore: cast_nullable_to_non_nullable
+                      as bool,
           )
           as $Val,
     );
@@ -164,6 +171,7 @@ abstract class _$$CartItemImplCopyWith<$Res>
     double totalPrice,
     String? productImageUrl,
     DateTime? addedAt,
+    bool isSelected,
   });
 }
 
@@ -192,6 +200,7 @@ class __$$CartItemImplCopyWithImpl<$Res>
     Object? totalPrice = null,
     Object? productImageUrl = freezed,
     Object? addedAt = freezed,
+    Object? isSelected = null,
   }) {
     return _then(
       _$CartItemImpl(
@@ -239,6 +248,10 @@ class __$$CartItemImplCopyWithImpl<$Res>
             ? _value.addedAt
             : addedAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
+        isSelected: null == isSelected
+            ? _value.isSelected
+            : isSelected // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -259,6 +272,7 @@ class _$CartItemImpl implements _CartItem {
     required this.totalPrice,
     this.productImageUrl,
     this.addedAt,
+    this.isSelected = true,
   });
 
   factory _$CartItemImpl.fromJson(Map<String, dynamic> json) =>
@@ -276,7 +290,7 @@ class _$CartItemImpl implements _CartItem {
   final String planName;
   @override
   final String planType;
-  // 예: 'data', 'call', 'sms'
+  // 'data', 'call', 'sms'
   @override
   final int quantity;
   @override
@@ -287,10 +301,13 @@ class _$CartItemImpl implements _CartItem {
   final String? productImageUrl;
   @override
   final DateTime? addedAt;
+  @override
+  @JsonKey()
+  final bool isSelected;
 
   @override
   String toString() {
-    return 'CartItem(id: $id, productId: $productId, productName: $productName, planId: $planId, planName: $planName, planType: $planType, quantity: $quantity, unitPrice: $unitPrice, totalPrice: $totalPrice, productImageUrl: $productImageUrl, addedAt: $addedAt)';
+    return 'CartItem(id: $id, productId: $productId, productName: $productName, planId: $planId, planName: $planName, planType: $planType, quantity: $quantity, unitPrice: $unitPrice, totalPrice: $totalPrice, productImageUrl: $productImageUrl, addedAt: $addedAt, isSelected: $isSelected)';
   }
 
   @override
@@ -316,7 +333,9 @@ class _$CartItemImpl implements _CartItem {
                 other.totalPrice == totalPrice) &&
             (identical(other.productImageUrl, productImageUrl) ||
                 other.productImageUrl == productImageUrl) &&
-            (identical(other.addedAt, addedAt) || other.addedAt == addedAt));
+            (identical(other.addedAt, addedAt) || other.addedAt == addedAt) &&
+            (identical(other.isSelected, isSelected) ||
+                other.isSelected == isSelected));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -334,6 +353,7 @@ class _$CartItemImpl implements _CartItem {
     totalPrice,
     productImageUrl,
     addedAt,
+    isSelected,
   );
 
   /// Create a copy of CartItem
@@ -363,6 +383,7 @@ abstract class _CartItem implements CartItem {
     required final double totalPrice,
     final String? productImageUrl,
     final DateTime? addedAt,
+    final bool isSelected,
   }) = _$CartItemImpl;
 
   factory _CartItem.fromJson(Map<String, dynamic> json) =
@@ -379,7 +400,7 @@ abstract class _CartItem implements CartItem {
   @override
   String get planName;
   @override
-  String get planType; // 예: 'data', 'call', 'sms'
+  String get planType; // 'data', 'call', 'sms'
   @override
   int get quantity;
   @override
@@ -390,6 +411,8 @@ abstract class _CartItem implements CartItem {
   String? get productImageUrl;
   @override
   DateTime? get addedAt;
+  @override
+  bool get isSelected;
 
   /// Create a copy of CartItem
   /// with the given fields replaced by the non-null parameter values.

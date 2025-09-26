@@ -21,6 +21,7 @@ _$CartItemImpl _$$CartItemImplFromJson(Map<String, dynamic> json) =>
       addedAt: json['addedAt'] == null
           ? null
           : DateTime.parse(json['addedAt'] as String),
+      isSelected: json['isSelected'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$$CartItemImplToJson(_$CartItemImpl instance) =>
@@ -36,6 +37,7 @@ Map<String, dynamic> _$$CartItemImplToJson(_$CartItemImpl instance) =>
       'totalPrice': instance.totalPrice,
       'productImageUrl': instance.productImageUrl,
       'addedAt': instance.addedAt?.toIso8601String(),
+      'isSelected': instance.isSelected,
     };
 
 _$CartImpl _$$CartImplFromJson(Map<String, dynamic> json) => _$CartImpl(

@@ -17,6 +17,7 @@ class CartItem with _$CartItem {
     required double totalPrice,
     String? productImageUrl,
     DateTime? addedAt,
+    @Default(true) bool isSelected, // 기본값은 선택됨
   }) = _CartItem;
 
   factory CartItem.fromJson(Map<String, dynamic> json) =>

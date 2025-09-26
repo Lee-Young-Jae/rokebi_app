@@ -10,6 +10,7 @@ import '../../features/products/pages/product_list_page.dart';
 import '../../features/products/pages/product_detail_page.dart';
 import '../../features/design_system/pages/design_system_showcase.dart';
 import '../../features/cart/pages/cart_page.dart';
+import '../../features/cart/viewmodels/cart_view_model.dart';
 import '../../features/navigation/pages/esim_page.dart';
 import '../../features/navigation/pages/call_page.dart';
 import '../../features/navigation/pages/account_page.dart';
@@ -81,12 +82,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             ), // 일단 Product로 들어와도 홈을 보여준다.
           ),
           GoRoute(
-            path: AppRoutes.cart,
-            name: AppRoutes.cart,
-            builder: (context, state) =>
-                const MainShellContent(route: AppRoutes.cart),
-          ),
-          GoRoute(
             path: AppRoutes.esim,
             name: AppRoutes.esim,
             builder: (context, state) =>
@@ -97,6 +92,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: AppRoutes.call,
             builder: (context, state) =>
                 const MainShellContent(route: AppRoutes.call),
+          ),
+          GoRoute(
+            path: AppRoutes.cart,
+            name: AppRoutes.cart,
+            builder: (context, state) =>
+                const MainShellContent(route: AppRoutes.cart),
           ),
           GoRoute(
             path: AppRoutes.account,
@@ -201,6 +202,10 @@ class ScaffoldWithNavBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentPath = GoRouterState.of(context).matchedLocation;
+    final cart = ref.watch(cartViewModelProvider);
+
+    // 카트 페이지이고 아이템이 있으면 네비게이션 숨김
+    final shouldHideNavigation = currentPath.startsWith('/cart') && cart.items.isNotEmpty;
 
     return CupertinoScaffold(
       body: Scaffold(
@@ -209,22 +214,41 @@ class ScaffoldWithNavBar extends ConsumerWidget {
             ? const ChatbotFloatingButton()
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        bottomNavigationBar: BottomNavigationBar(
+        bottomNavigationBar: shouldHideNavigation ? null : BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: _calculateSelectedIndex(currentPath),
           onTap: (index) => _onItemTapped(index, context),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+          items: [
+            const BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: '장바구니',
+              icon: _buildCartIcon(cart.items.length),
+              label: '카트',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.sim_card), label: 'eSIM'),
-            BottomNavigationBarItem(icon: Icon(Icons.phone), label: '통화'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: '내계정'),
+            const BottomNavigationBarItem(icon: Icon(Icons.sim_card), label: 'eSIM'),
+            const BottomNavigationBarItem(icon: Icon(Icons.phone), label: '통화'),
+            const BottomNavigationBarItem(icon: Icon(Icons.person), label: '내계정'),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCartIcon(int itemCount) {
+    if (itemCount == 0) {
+      return const Icon(Icons.shopping_cart);
+    }
+
+    return Badge(
+      label: Text(
+        itemCount > 99 ? '99+' : itemCount.toString(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: Colors.red,
+      child: const Icon(Icons.shopping_cart),
     );
   }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:rokebi_app/core/routes/app_routes.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
@@ -8,15 +10,17 @@ import '../models/product_plan_model.dart';
 import '../models/product_model.dart';
 import '../models/plan_model.dart';
 import '../../cart/widgets/purchase_bottom_sheet.dart';
+import '../../cart/viewmodels/cart_view_model.dart';
 
-class PlanDetailPage extends StatelessWidget {
+class PlanDetailPage extends ConsumerWidget {
   final ProductPlan plan;
   final Product product;
 
   const PlanDetailPage({super.key, required this.plan, required this.product});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.watch(cartViewModelProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
@@ -35,8 +39,8 @@ class PlanDetailPage extends StatelessWidget {
         actions: [
           // cart
           IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () => Navigator.pushNamed(context, AppRoutes.cart),
+            icon: _buildCartIcon(cart.items.length),
+            onPressed: () => context.go(AppRoutes.cart),
           ),
         ],
       ),
@@ -684,6 +688,25 @@ class PlanDetailPage extends StatelessWidget {
       ],
     );
   }
+
+  Widget _buildCartIcon(int itemCount) {
+    if (itemCount == 0) {
+      return const Icon(Icons.shopping_cart_outlined);
+    }
+
+    return Badge(
+      label: Text(
+        itemCount > 99 ? '99+' : itemCount.toString(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: Colors.red,
+      child: const Icon(Icons.shopping_cart_outlined),
+    );
+  }
 }
 
 class _PlanDetailBottomBar extends StatelessWidget {
@@ -691,6 +714,16 @@ class _PlanDetailBottomBar extends StatelessWidget {
   final Product product;
 
   const _PlanDetailBottomBar({required this.plan, required this.product});
+
+  /// 가격 문자열에서 숫자만 추출하는 헬퍼 함수
+  /// 예: "8,600원" -> 8600, "13%" -> 13
+  int _parsePrice(String? priceStr) {
+    if (priceStr == null || priceStr.isEmpty) return 0;
+
+    // 숫자가 아닌 모든 문자 제거 (쉼표, 원, % 등)
+    final numericStr = priceStr.replaceAll(RegExp(r'[^\d]'), '');
+    return int.tryParse(numericStr) ?? 0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -746,11 +779,9 @@ class _PlanDetailBottomBar extends StatelessWidget {
                       title: plan.title,
                       type: plan.planType.name,
                       amount: plan.volume ?? '0',
-                      originalPrice:
-                          int.tryParse(plan.originalPrice ?? '0') ?? 0,
-                      discountRate:
-                          int.tryParse(plan.discountPercent ?? '0') ?? 0,
-                      finalPrice: int.tryParse(plan.price) ?? 0,
+                      originalPrice: _parsePrice(plan.originalPrice),
+                      discountRate: _parsePrice(plan.discountPercent),
+                      finalPrice: _parsePrice(plan.price),
                       validDays: plan.duration ?? 0,
                       description: plan.description,
                       features: plan.features,
