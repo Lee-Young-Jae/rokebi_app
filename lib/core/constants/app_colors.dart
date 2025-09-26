@@ -53,4 +53,15 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  static const LinearGradient guideBannerGradient = LinearGradient(
+    colors: [
+      // 보라
+      Color.fromARGB(255, 166, 102, 255),
+      // 파랑
+      Color(0xFF4087FF),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }

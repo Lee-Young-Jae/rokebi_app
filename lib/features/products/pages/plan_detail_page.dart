@@ -6,6 +6,8 @@ import '../../../core/constants/app_typography.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../models/product_plan_model.dart';
 import '../models/product_model.dart';
+import '../models/plan_model.dart';
+import '../../cart/widgets/purchase_bottom_sheet.dart';
 
 class PlanDetailPage extends StatelessWidget {
   final ProductPlan plan;
@@ -67,7 +69,7 @@ class PlanDetailPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _PlanDetailBottomBar(plan: plan),
+      bottomNavigationBar: _PlanDetailBottomBar(plan: plan, product: product),
     );
   }
 
@@ -686,8 +688,9 @@ class PlanDetailPage extends StatelessWidget {
 
 class _PlanDetailBottomBar extends StatelessWidget {
   final ProductPlan plan;
+  final Product product;
 
-  const _PlanDetailBottomBar({required this.plan});
+  const _PlanDetailBottomBar({required this.plan, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -733,9 +736,26 @@ class _PlanDetailBottomBar extends StatelessWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(
+                  // 바텀시트 표시
+                  PurchaseBottomSheet.show(
                     context,
-                  ).showSnackBar(const SnackBar(content: Text('구매 페이지로 이동중')));
+                    product,
+                    Plan(
+                      id: plan.id,
+                      productId: product.id,
+                      title: plan.title,
+                      type: plan.planType.name,
+                      amount: plan.volume ?? '0',
+                      originalPrice:
+                          int.tryParse(plan.originalPrice ?? '0') ?? 0,
+                      discountRate:
+                          int.tryParse(plan.discountPercent ?? '0') ?? 0,
+                      finalPrice: int.tryParse(plan.price) ?? 0,
+                      validDays: plan.duration ?? 0,
+                      description: plan.description,
+                      features: plan.features,
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

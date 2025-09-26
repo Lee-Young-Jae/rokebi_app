@@ -1,20 +1,28 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../errors/app_error.dart';
+import '../../features/auth/services/token_service.dart';
 
 class ApiService {
   static final Dio _dio = Dio();
 
   static String get baseUrl {
+    String baseUrl = Platform.isAndroid
+        ? 'http://10.0.2.2:3000'
+        : 'http://localhost:3000';
+    // : 'http://172.30.1.23:3000';
+
     // 웹에서는 항상 localhost 사용
     if (kIsWeb) {
-      return 'http://localhost:3000';
+      return baseUrl;
     }
 
     // 모바일 플랫폼에서는 디바이스에 따라 다른 URL 사용
     // Android 에뮬레이터: 10.0.2.2
     // iOS 시뮬레이터 및 실제 기기: localhost (또는 실제 서버 IP)
-    return 'http://localhost:3000';
+    return baseUrl;
   }
 
   static void initialize() {
@@ -186,13 +194,38 @@ class _ErrorInterceptor extends Interceptor {
 // 인증 인터셉터
 class _AuthInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // 추후 토큰 인증 추가 가능
-    // final token = AuthService.getToken();
-    // if (token != null) {
-    //   options.headers['Authorization'] = 'Bearer $token';
-    // }
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // 인증이 필요한 엔드포인트에 자동으로 토큰 추가
+    if (_requiresAuth(options.path)) {
+      try {
+        final tokenService = TokenService();
+        final accessToken = await tokenService.getAccessToken();
+
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+        }
+      } catch (e) {
+        // 토큰 가져오기 실패시 그냥 진행
+        if (kDebugMode) {
+          debugPrint('Failed to add auth token: $e');
+        }
+      }
+    }
     handler.next(options);
+  }
+
+  bool _requiresAuth(String path) {
+    // 인증이 필요한 API 경로들
+    final authRequiredPaths = [
+      '/api/auth/profile',
+      '/api/auth/logout',
+      // 추후 다른 인증 필요 API들 추가
+    ];
+
+    return authRequiredPaths.any((authPath) => path.contains(authPath));
   }
 
   @override

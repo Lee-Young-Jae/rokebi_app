@@ -20,7 +20,7 @@ class AppRoutes {
 
   // Product routes
   static const String productList = '/products';
-  static const String productDetail = '/product';
+  static const String productDetail = '/product/:id';
   static const String checkout = '/checkout';
 
   // Order
@@ -63,12 +63,47 @@ class AppRoutes {
     designSystem,
   };
 
+  // 인증이 필요한 라우트
+  static Set<String> get authRequiredRoutes => {
+    profile,
+    settings,
+    checkout,
+    orders,
+    orderDetail,
+    account,
+    esim,
+    call,
+  };
+
+  // 로그인한 유저는 접근 불가 라우트 (이미 로그인한 경우 홈으로 리다이렉트)
+  static Set<String> get guestOnlyRoutes => {login, register, forgotPassword};
+
+  // 선택적 인증 라우트 (게스트도 접근 가능하지만 로그인시 더 많은 기능)
+  static Set<String> get optionalAuthRoutes => {
+    cart, // 장바구니는 게스트도 이용 가능
+    productList,
+    productDetail,
+    search,
+  };
+
   // chatbot floating 표시 여부
   static bool shouldShowChatbot(String? routeName) {
     if (routeName == null) return false;
 
     // 비활성화 목록에 있으면 false, 없으면 true
     return !chatbotDisabledRoutes.contains(routeName);
+  }
+
+  // 인증 필요 여부 확인
+  static bool requiresAuth(String? routeName) {
+    if (routeName == null) return false;
+    return authRequiredRoutes.contains(routeName);
+  }
+
+  // 게스트 전용 라우트 확인
+  static bool isGuestOnly(String? routeName) {
+    if (routeName == null) return false;
+    return guestOnlyRoutes.contains(routeName);
   }
 
   // Get all routes as a list

@@ -16,6 +16,7 @@ class ProductCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
@@ -54,6 +55,8 @@ class ProductCard extends StatelessWidget {
             style: AppTypography.bodyLarge.copyWith(
               fontWeight: FontWeight.w600,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Row(
             children: [
@@ -91,6 +94,8 @@ class ProductCard extends StatelessWidget {
             style: AppTypography.bodySmall.copyWith(
               color: AppColors.textSecondary,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

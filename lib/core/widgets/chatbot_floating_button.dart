@@ -56,13 +56,16 @@ class ChatbotFloatingButton extends StatelessWidget {
   }
 
   void _showChatbot(BuildContext context) {
-    showCupertinoModalBottomSheet(
+    CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
       builder: (context) => const ChatBotPage(),
       expand: true,
       backgroundColor: Colors.transparent,
       enableDrag: true,
       isDismissible: true,
+      bounce: true,
+      animationCurve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 400),
     );
   }
 }
