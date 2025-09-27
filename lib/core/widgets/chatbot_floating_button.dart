@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:rokebi_app/features/chatbot/pages/chatbot_page.dart';
+import 'package:rokebi_app/features/chatbot/pages/channel_talk_page.dart';
 
 /// 독립적으로 사용 가능한 챗봇 플로팅 버튼
 ///
@@ -58,7 +58,7 @@ class ChatbotFloatingButton extends StatelessWidget {
   void _showChatbot(BuildContext context) {
     CupertinoScaffold.showCupertinoModalBottomSheet(
       context: context,
-      builder: (context) => const ChatBotPage(),
+      builder: (context) => const ChannelTalkPage(),
       expand: true,
       backgroundColor: Colors.transparent,
       enableDrag: true,
