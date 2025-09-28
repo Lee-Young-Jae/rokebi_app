@@ -11,8 +11,8 @@ class ApiService {
   static String get baseUrl {
     String baseUrl = Platform.isAndroid
         ? 'http://10.0.2.2:3000'
-        : 'http://localhost:3000';
-    // : 'http://172.30.1.23:3000';
+        // : 'http://localhost:3000';
+        : 'http://192.168.219.100:3000';
 
     // 웹에서는 항상 localhost 사용
     if (kIsWeb) {

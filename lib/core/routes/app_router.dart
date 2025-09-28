@@ -6,14 +6,9 @@ import 'app_routes.dart';
 import '../../features/auth/viewmodels/auth_view_model.dart';
 import '../../features/auth/pages/login_page.dart';
 import '../../features/auth/pages/register_page.dart';
-import '../../features/products/pages/product_list_page.dart';
 import '../../features/products/pages/product_detail_page.dart';
 import '../../features/design_system/pages/design_system_showcase.dart';
-import '../../features/cart/pages/cart_page.dart';
 import '../../features/cart/viewmodels/cart_view_model.dart';
-import '../../features/navigation/pages/esim_page.dart';
-import '../../features/navigation/pages/call_page.dart';
-import '../../features/navigation/pages/account_page.dart';
 import '../widgets/chatbot_floating_button.dart';
 
 // Listenable 클래스를 만들어 상태 변경을 감지
@@ -104,6 +99,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: AppRoutes.account,
             builder: (context, state) =>
                 const MainShellContent(route: AppRoutes.account),
+          ),
+          GoRoute(
+            path: AppRoutes.contacts,
+            name: AppRoutes.contacts,
+            builder: (context, state) =>
+                const MainShellContent(route: AppRoutes.contacts),
           ),
         ],
       ),
@@ -205,7 +206,8 @@ class ScaffoldWithNavBar extends ConsumerWidget {
     final cart = ref.watch(cartViewModelProvider);
 
     // 카트 페이지이고 아이템이 있으면 네비게이션 숨김
-    final shouldHideNavigation = currentPath.startsWith('/cart') && cart.items.isNotEmpty;
+    final shouldHideNavigation =
+        currentPath.startsWith('/cart') && cart.items.isNotEmpty;
 
     return CupertinoScaffold(
       body: Scaffold(
@@ -214,21 +216,35 @@ class ScaffoldWithNavBar extends ConsumerWidget {
             ? const ChatbotFloatingButton()
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        bottomNavigationBar: shouldHideNavigation ? null : BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _calculateSelectedIndex(currentPath),
-          onTap: (index) => _onItemTapped(index, context),
-          items: [
-            const BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-            BottomNavigationBarItem(
-              icon: _buildCartIcon(cart.items.length),
-              label: '카트',
-            ),
-            const BottomNavigationBarItem(icon: Icon(Icons.sim_card), label: 'eSIM'),
-            const BottomNavigationBarItem(icon: Icon(Icons.phone), label: '통화'),
-            const BottomNavigationBarItem(icon: Icon(Icons.person), label: '내계정'),
-          ],
-        ),
+        bottomNavigationBar: shouldHideNavigation
+            ? null
+            : BottomNavigationBar(
+                type: BottomNavigationBarType.fixed,
+                currentIndex: _calculateSelectedIndex(currentPath),
+                onTap: (index) => _onItemTapped(index, context),
+                items: [
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.home),
+                    label: '홈',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: _buildCartIcon(cart.items.length),
+                    label: '카트',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.sim_card),
+                    label: 'eSIM',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.phone),
+                    label: '통화',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: '내계정',
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -290,21 +306,8 @@ class MainShellContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 라우트별로 적절한 페이지 위젯 반환
-    switch (route) {
-      case AppRoutes.home:
-        return const ProductListPage();
-      case AppRoutes.cart:
-        return const CartPage();
-      case AppRoutes.esim:
-        return const ESimPage();
-      case AppRoutes.call:
-        return const CallPage();
-      case AppRoutes.account:
-        return const AccountPage();
-      default:
-        return const ProductListPage();
-    }
+    // AppRoutes의 매핑을 사용하여 위젯 반환
+    return AppRoutes.getShellRouteWidget(route);
   }
 }
 

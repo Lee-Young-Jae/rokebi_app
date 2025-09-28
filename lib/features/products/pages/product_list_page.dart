@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:rokebi_app/core/constants/app_colors.dart';
 import 'package:rokebi_app/core/constants/app_typography.dart';
 import 'package:rokebi_app/features/products/widget/product_card.dart';
@@ -40,6 +43,45 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
     super.dispose();
   }
 
+  /// iOS에서 실제 마이크 접근을 시도하여 권한 팝업을 강제로 트리거
+  Future<void> _triggerIOSMicrophoneRequest() async {
+    if (!Platform.isIOS) return;
+
+    try {
+      print(
+        '🎤 [Home] Triggering iOS microphone access for permission popup...',
+      );
+
+      // AudioSession을 통해 마이크 사용을 시도
+      final session = await AudioSession.instance;
+      await session.configure(
+        const AudioSessionConfiguration(
+          avAudioSessionCategory: AVAudioSessionCategory.record,
+          avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.none,
+          avAudioSessionMode: AVAudioSessionMode.defaultMode,
+          avAudioSessionRouteSharingPolicy:
+              AVAudioSessionRouteSharingPolicy.defaultPolicy,
+          avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+          androidAudioAttributes: AndroidAudioAttributes(
+            contentType: AndroidAudioContentType.speech,
+            flags: AndroidAudioFlags.none,
+            usage: AndroidAudioUsage.voiceCommunication,
+          ),
+          androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+          androidWillPauseWhenDucked: true,
+        ),
+      );
+
+      await session.setActive(true);
+      await Future.delayed(const Duration(milliseconds: 500));
+      await session.setActive(false);
+
+      print('✅ [Home] iOS microphone trigger completed');
+    } catch (e) {
+      print('⚠️ [Home] iOS microphone trigger failed: $e');
+    }
+  }
+
   void _onScroll() {
     if (_scrollController.offset > 50 && _isBannerVisible) {
       setState(() {
@@ -69,6 +111,66 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
           child: SvgPicture.asset('assets/icons/logo.svg', height: 24),
         ),
         actions: [
+          // 권한 테스트 버튼 (임시)
+          IconButton(
+            icon: const Icon(Icons.security),
+            onPressed: () async {
+              // 권한 상태 확인
+              final contactsStatus = await Permission.contacts.status;
+              final microphoneStatus = await Permission.microphone.status;
+
+              print('🔍 Current permission status:');
+              print('📱 Contacts: $contactsStatus');
+              print('🎤 Microphone: $microphoneStatus');
+
+              // 권한 요청
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('권한 테스트'),
+                  content: Text('연락처: $contactsStatus\n마이크: $microphoneStatus'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text('취소'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+
+                        // iOS에서 실제 마이크 접근 트리거
+                        if (Platform.isIOS) {
+                          await _triggerIOSMicrophoneRequest();
+                        }
+
+                        // 권한 요청
+                        final Map<Permission, PermissionStatus> statuses =
+                            await [
+                              Permission.contacts,
+                              Permission.microphone,
+                            ].request();
+
+                        print('📝 Permission request results:');
+                        statuses.forEach((permission, status) {
+                          print('$permission: $status');
+                        });
+
+                        ScaffoldMessenger.of(this.context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '연락처: ${statuses[Permission.contacts]}, 마이크: ${statuses[Permission.microphone]}',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text('권한 요청'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            tooltip: 'Permission Test',
+          ),
           IconButton(
             icon: const Icon(Icons.palette),
             onPressed: () {
@@ -193,7 +295,8 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
             LayoutBuilder(
               builder: (context, constraints) {
                 final screenWidth = constraints.maxWidth;
-                final cardWidth = (screenWidth - 14) / 2; // 2 columns with spacing
+                final cardWidth =
+                    (screenWidth - 14) / 2; // 2 columns with spacing
 
                 return Wrap(
                   spacing: 14,

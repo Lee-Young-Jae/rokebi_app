@@ -1,3 +1,11 @@
+import 'package:flutter/widgets.dart';
+import '../../features/products/pages/product_list_page.dart';
+import '../../features/cart/pages/cart_page.dart';
+import '../../features/navigation/pages/esim_page.dart';
+import '../../features/call/pages/call_page.dart';
+import '../../features/call/pages/contacts_page.dart';
+import '../../features/account/pages/account_page.dart';
+
 class AppRoutes {
   // Shell route (with bottom navigation)
   static const String shell = '/';
@@ -32,9 +40,10 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String help = '/help';
   static const String designSystem = '/design-system';
+  static const String contacts = '/call/contacts';
 
   // 바텀 네비게이션 포함하는 라우트
-  static List<String> get shellRoutes => [home, cart, esim, call, account];
+  static List<String> get shellRoutes => [home, esim, call, account, contacts];
 
   // 바텀 네비게이션 포함하지 않는 라우트
   static List<String> get standaloneRoutes => [
@@ -60,6 +69,7 @@ class AppRoutes {
     register,
     forgotPassword,
     checkout,
+    call,
     designSystem,
   };
 
@@ -104,6 +114,21 @@ class AppRoutes {
   static bool isGuestOnly(String? routeName) {
     if (routeName == null) return false;
     return guestOnlyRoutes.contains(routeName);
+  }
+
+  // 라우트별 위젯 매핑
+  static final Map<String, Widget> shellRouteWidgets = {
+    home: const ProductListPage(),
+    cart: const CartPage(),
+    esim: const ESimPage(),
+    call: const CallPage(),
+    account: const AccountPage(),
+    contacts: const ContactsPage(),
+  };
+
+  // 라우트에 해당하는 위젯 반환
+  static Widget getShellRouteWidget(String route) {
+    return shellRouteWidgets[route] ?? const ProductListPage();
   }
 
   // Get all routes as a list

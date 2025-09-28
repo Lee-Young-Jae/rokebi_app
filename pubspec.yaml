@@ -64,6 +64,15 @@ dependencies:
   # webview
   flutter_inappwebview: ^6.0.0
 
+  # Permissions
+  permission_handler: ^11.2.0
+
+  # Audio session for triggering iOS microphone access
+  audio_session: ^0.1.21
+
+  # Contacts access
+  flutter_contacts: ^1.1.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
