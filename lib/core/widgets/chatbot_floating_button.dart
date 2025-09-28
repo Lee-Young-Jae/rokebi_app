@@ -61,11 +61,9 @@ class ChatbotFloatingButton extends StatelessWidget {
       builder: (context) => const ChannelTalkPage(),
       expand: true,
       backgroundColor: Colors.transparent,
-      enableDrag: true,
-      isDismissible: true,
+      enableDrag: false, // 모달 바텀시트 드래그 가능
+      isDismissible: false, // 모달 바텀시트 닫기 금지
       bounce: true,
-      animationCurve: Curves.easeInOut,
-      duration: const Duration(milliseconds: 400),
     );
   }
 }
