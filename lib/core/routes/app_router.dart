@@ -10,6 +10,7 @@ import '../../features/products/pages/product_detail_page.dart';
 import '../../features/design_system/pages/design_system_showcase.dart';
 import '../../features/cart/viewmodels/cart_view_model.dart';
 import '../widgets/chatbot_floating_button.dart';
+import '../widgets/channel_talk_test_widget.dart';
 
 // Listenable 클래스를 만들어 상태 변경을 감지
 class AuthStateNotifier extends ChangeNotifier {
@@ -160,6 +161,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: const DesignSystemShowcase(),
         ),
       ),
+      GoRoute(
+        path: '/channel-talk-test',
+        name: 'channel-talk-test',
+        builder: (context, state) => const ChannelTalkTestWidget(),
+      ),
     ],
 
     // 에러 페이지
@@ -213,7 +219,16 @@ class ScaffoldWithNavBar extends ConsumerWidget {
       body: Scaffold(
         body: child,
         floatingActionButton: AppRoutes.shouldShowChatbot(currentPath)
-            ? const ChatbotFloatingButton()
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // 최소 크기로 제한
+                  children: [
+                    // 기존 WebView 버튼 (아래)
+                    const ChatbotFloatingButton(),
+                  ],
+                ),
+              )
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         bottomNavigationBar: shouldHideNavigation

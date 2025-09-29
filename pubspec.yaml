@@ -72,6 +72,7 @@ dependencies:
 
   # Contacts access
   flutter_contacts: ^1.1.7
+  channel_talk_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
