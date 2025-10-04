@@ -4,6 +4,7 @@ import '../models/product_plan_model.dart';
 import '../models/product_detail_state.dart';
 import '../repositories/product_repository.dart';
 import '../repositories/product_plan_repository.dart';
+import '../../../core/errors/global_error_handler.dart';
 
 class ProductDetailViewModel extends StateNotifier<ProductDetailState> {
   final ProductRepository _productRepository;
@@ -31,53 +32,29 @@ class ProductDetailViewModel extends StateNotifier<ProductDetailState> {
       if (tabs.isNotEmpty) {
         loadPlansForTab(tabs.first);
       }
-    } catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
+    } catch (e, stackTrace) {
+      final appError = GlobalErrorHandler.handleError(e, stackTrace);
+      state = state.copyWith(error: appError.toString(), isLoading: false);
     }
   }
 
   Future<List<String>> _setupTabs(Product product) async {
-    try {
-      // 요금제 타입들을 조회
-      final plansGrouped = await _planRepository.getPlansGroupedByPeriod(
-        product.id,
+    // 요금제 타입들을 조회
+    final plansGrouped = await _planRepository.getPlansGroupedByPeriod(
+      product.id,
+    );
+
+    // planType 키를 한글 표시명으로 변환
+    final availableDisplayNames = <String>[];
+    for (final planTypeKey in plansGrouped.keys) {
+      final planType = PlanType.values.firstWhere(
+        (type) => type.name == planTypeKey,
+        orElse: () => PlanType.allday, // 기본값
       );
-
-      // planType 키를 한글 표시명으로 변환
-      final availableDisplayNames = <String>[];
-      for (final planTypeKey in plansGrouped.keys) {
-        final planType = PlanType.values.firstWhere(
-          (type) => type.name == planTypeKey,
-          orElse: () => PlanType.allday, // 기본값
-        );
-        availableDisplayNames.add(planType.displayName);
-      }
-
-      return availableDisplayNames;
-    } catch (e) {
-      // API 오류 시 제품 배지 기반 fallback
-      final tabs = <String>[];
-
-      bool hasAllday = product.badges.any(
-        (badge) => badge.type == ProductBadgeType.allday,
-      );
-      bool hasAlldayPlus = product.badges.any(
-        (badge) => badge.type == ProductBadgeType.alldayPlus,
-      );
-
-      if (hasAllday) {
-        tabs.add('올데이');
-      }
-      if (hasAlldayPlus) {
-        tabs.add('올데이+');
-      }
-
-      // 기본적으로 데일리와 종량제는 항상 포함
-      tabs.add('데일리');
-      tabs.add('종량제');
-
-      return tabs;
+      availableDisplayNames.add(planType.displayName);
     }
+
+    return availableDisplayNames;
   }
 
   Future<void> loadPlansForTab(String tabType) async {
@@ -144,38 +121,13 @@ class ProductDetailViewModel extends StateNotifier<ProductDetailState> {
       } else {
         state = state.copyWith(isLoading: false, isLoadingTab: false);
       }
-    } catch (e) {
-      // API 오류 시 더미 데이터로 fallback
-      List<ProductPlan> fallbackPlans;
-      switch (tabType) {
-        case '올데이':
-          fallbackPlans = _getAlldayPlans();
-          break;
-        case '올데이+':
-          fallbackPlans = _getAlldayPlusPlans();
-          break;
-        case '데일리':
-          fallbackPlans = _getDailyPlans();
-          break;
-        case '종량제':
-          fallbackPlans = _getPayAsYouGoPlans();
-          break;
-        default:
-          fallbackPlans = [];
-      }
-
-      // 캐시 업데이트
-      final updatedCache = Map<String, List<ProductPlan>>.from(state.tabCache);
-      updatedCache[cacheKey] = fallbackPlans;
-
+    } catch (e, stackTrace) {
+      final appError = GlobalErrorHandler.handleError(e, stackTrace);
       state = state.copyWith(
-        allPlans: fallbackPlans,
-        currentTabType: tabType,
+        error: appError.toString(),
         isLoading: false,
         isLoadingTab: false,
-        tabCache: updatedCache,
       );
-      _applyFilters(tabType);
     }
   }
 
@@ -193,7 +145,6 @@ class ProductDetailViewModel extends StateNotifier<ProductDetailState> {
     if (state.product == null) return;
 
     try {
-      // API에서 필터링된 데이터를 직접 가져오기
       PlanType? planType;
       String? subType;
       String? volume;
@@ -243,8 +194,9 @@ class ProductDetailViewModel extends StateNotifier<ProductDetailState> {
 
         state = state.copyWith(filteredPlans: filteredPlans);
       }
-    } catch (e) {
-      // API 오류 시 클라이언트 사이드 필터링으로 fallback
+    } catch (e, stackTrace) {
+      GlobalErrorHandler.handleError(e, stackTrace);
+      // 필터링에서 실패 시 전체 플랜 표시
       List<ProductPlan> filtered = List.from(state.allPlans);
 
       if (tabType == '올데이' || tabType == '올데이+') {
@@ -263,121 +215,6 @@ class ProductDetailViewModel extends StateNotifier<ProductDetailState> {
 
       state = state.copyWith(filteredPlans: filtered);
     }
-  }
-
-  // API 오류 시 fallback용 더미 데이터 메서드들
-  List<ProductPlan> _getAlldayPlans() {
-    final productId = state.product?.id ?? '1';
-    return [
-      ProductPlan(
-        id: 'fallback_allday_1',
-        productId: productId,
-        title: '3일',
-        description: '일 데이터 제한 없이 완전 무제한',
-        price: '8,600원',
-        originalPrice: '9,900원',
-        discountPercent: '13%',
-        planType: PlanType.allday,
-        subType: '단품',
-        duration: 3,
-        isUnlimited: true,
-        features: ['데이터 무제한', '통화 가능', '문자 발송 가능'],
-      ),
-      ProductPlan(
-        id: 'fallback_allday_2',
-        productId: productId,
-        title: '7일',
-        description: '일 데이터 제한 없이 완전 무제한',
-        price: '19,000원',
-        originalPrice: '29,900원',
-        discountPercent: '36%',
-        planType: PlanType.allday,
-        subType: '단품',
-        duration: 7,
-        isUnlimited: true,
-        features: ['데이터 무제한', '통화 가능', '문자 발송 가능'],
-      ),
-    ];
-  }
-
-  List<ProductPlan> _getAlldayPlusPlans() {
-    final productId = state.product?.id ?? '1';
-    return [
-      ProductPlan(
-        id: 'fallback_alldayplus_1',
-        productId: productId,
-        title: '3일',
-        description: '3일 프리미엄 데이터 무제한',
-        price: '7,500원',
-        originalPrice: '8,400원',
-        discountPercent: '10%',
-        planType: PlanType.alldayplus,
-        subType: '단품',
-        duration: 3,
-        isUnlimited: true,
-        features: ['프리미엄 데이터 무제한', '통화 가능', '문자 발송 가능'],
-      ),
-    ];
-  }
-
-  List<ProductPlan> _getDailyPlans() {
-    final productId = state.product?.id ?? '1';
-    return [
-      ProductPlan(
-        id: 'fallback_daily_1',
-        productId: productId,
-        title: '500MB 1일',
-        description: '1일 500MB 고속 데이터',
-        price: '490원',
-        planType: PlanType.daily,
-        volume: '500MB',
-        duration: 1,
-        isUnlimited: false,
-        features: ['500MB 고속 데이터', '통화 가능'],
-      ),
-      ProductPlan(
-        id: 'fallback_daily_2',
-        productId: productId,
-        title: '1GB 3일',
-        description: '3일 1GB 고속 데이터',
-        price: '1,890원',
-        planType: PlanType.daily,
-        volume: '1GB',
-        duration: 3,
-        isUnlimited: false,
-        features: ['1GB 고속 데이터', '통화 가능'],
-      ),
-    ];
-  }
-
-  List<ProductPlan> _getPayAsYouGoPlans() {
-    final productId = state.product?.id ?? '1';
-    return [
-      ProductPlan(
-        id: 'fallback_payasyougo_1',
-        productId: productId,
-        title: '100MB LINE Mobile',
-        description: '소량 사용자를 위한 경제적 선택',
-        price: '290원',
-        planType: PlanType.payasyougo,
-        volume: '100MB',
-        carrier: 'LINE Mobile',
-        isUnlimited: false,
-        features: ['100MB 데이터', '통화 불가'],
-      ),
-      ProductPlan(
-        id: 'fallback_payasyougo_2',
-        productId: productId,
-        title: '1GB UQ Mobile',
-        description: '단기 여행에 적합한 선택',
-        price: '1,590원',
-        planType: PlanType.payasyougo,
-        volume: '1GB',
-        carrier: 'UQ Mobile',
-        isUnlimited: false,
-        features: ['1GB 데이터', '통화 가능'],
-      ),
-    ];
   }
 }
 
