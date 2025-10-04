@@ -111,6 +111,14 @@ class _ProductListPageState extends ConsumerState<ProductListPage>
           child: SvgPicture.asset('assets/icons/logo.svg', height: 24),
         ),
         actions: [
+          // MMobile 버튼
+          IconButton(
+            icon: const Icon(Icons.phone),
+            onPressed: () {
+              context.push(AppRoutes.mMobile);
+            },
+          ),
+
           // 권한 테스트 버튼 (임시)
           IconButton(
             icon: const Icon(Icons.security),

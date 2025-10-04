@@ -5,7 +5,9 @@ import 'app_error.dart';
 class GlobalErrorHandler {
   static GlobalKey<ScaffoldMessengerState>? _scaffoldMessengerKey;
 
-  static void initialize(GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey) {
+  static void initialize(
+    GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey,
+  ) {
     _scaffoldMessengerKey = scaffoldMessengerKey;
   }
 
@@ -40,21 +42,17 @@ class GlobalErrorHandler {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return const AppError.timeout(
-          message: '요청 시간이 초과되었습니다.',
-        );
+        return const AppError.timeout(message: '요청 시간이 초과되었습니다.');
 
       case DioExceptionType.badResponse:
         final statusCode = dioError.response?.statusCode;
-        final message = dioError.response?.data?['error'] ??
-                        dioError.response?.data?['message'] ??
-                        '서버 오류가 발생했습니다.';
+        final message =
+            dioError.response?.data?['error'] ??
+            dioError.response?.data?['message'] ??
+            '서버 오류가 발생했습니다.';
 
         if (statusCode == 401) {
-          return AppError.auth(
-            message: message,
-            code: statusCode.toString(),
-          );
+          return AppError.auth(message: message, code: statusCode.toString());
         }
 
         return AppError.network(
@@ -64,14 +62,10 @@ class GlobalErrorHandler {
         );
 
       case DioExceptionType.cancel:
-        return const AppError.unknown(
-          message: '요청이 취소되었습니다.',
-        );
+        return const AppError.unknown(message: '요청이 취소되었습니다.');
 
       case DioExceptionType.connectionError:
-        return const AppError.noInternet(
-          message: '네트워크 연결을 확인해주세요.',
-        );
+        return const AppError.noInternet(message: '네트워크 연결을 확인해주세요.');
 
       default:
         return AppError.unknown(
@@ -84,9 +78,6 @@ class GlobalErrorHandler {
   static void _logError(AppError error, StackTrace stackTrace) {
     debugPrint('🚨 AppError: ${error.toString()}');
     debugPrint('📍 StackTrace: ${stackTrace.toString()}');
-
-    // 추후 구조화된 로깅 라이브러리 사용 가능
-    // logger.e(error.toString(), error: error, stackTrace: stackTrace);
   }
 
   static void _showErrorToUser(AppError error) {

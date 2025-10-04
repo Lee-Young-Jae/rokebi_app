@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:rokebi_app/features/m_mobile/pages/sub_home.dart';
 import 'app_routes.dart';
 import '../../features/auth/viewmodels/auth_view_model.dart';
 import '../../features/auth/pages/login_page.dart';
@@ -159,6 +160,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           routeName: AppRoutes.designSystem,
           child: const DesignSystemShowcase(),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.mMobile,
+        name: AppRoutes.mMobile,
+        builder: (context, state) => const MMobilePage(),
       ),
     ],
 

@@ -30,19 +30,11 @@ class AppShadows {
   ];
 
   static const List<BoxShadow> elevationThree = [
-    BoxShadow(
-      color: AppColors.shadow,
-      blurRadius: 8,
-      offset: Offset(0, 4),
-    ),
+    BoxShadow(color: AppColors.shadow, blurRadius: 8, offset: Offset(0, 4)),
   ];
 
   static const List<BoxShadow> elevationFour = [
-    BoxShadow(
-      color: AppColors.shadow,
-      blurRadius: 12,
-      offset: Offset(0, 6),
-    ),
+    BoxShadow(color: AppColors.shadow, blurRadius: 12, offset: Offset(0, 6)),
   ];
 
   static const List<BoxShadow> elevationFive = [
@@ -94,6 +86,16 @@ class AppShadows {
       color: AppColors.shadowDark,
       blurRadius: 12,
       offset: Offset(0, 4),
+      spreadRadius: 0,
+    ),
+  ];
+
+  // top에만 적용
+  static const List<BoxShadow> dockedSearchBarShadow = [
+    BoxShadow(
+      color: AppColors.shadowDark,
+      blurRadius: 20,
+      offset: Offset(0, -4),
       spreadRadius: 0,
     ),
   ];

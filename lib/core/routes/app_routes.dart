@@ -41,6 +41,7 @@ class AppRoutes {
   static const String help = '/help';
   static const String designSystem = '/design-system';
   static const String contacts = '/call/contacts';
+  static const String mMobile = '/m-mobile';
 
   // 바텀 네비게이션 포함하는 라우트
   static List<String> get shellRoutes => [home, esim, call, account, contacts];
@@ -61,6 +62,7 @@ class AppRoutes {
     notifications,
     help,
     designSystem,
+    mMobile,
   ];
 
   // 챗봇 X 페이지
